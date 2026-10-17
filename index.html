@@ -1,0 +1,718 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Reshape Workout Routine</title>
+  
+  <style>
+    :root {
+      --bg-canvas: #090A0F;
+      --bg-surface: #141721;
+      --bg-elevated: #1B202D;
+      --bg-input: #0D1017;
+      --border-subtle: #23293A;
+      --border-highlight: #353E57;
+      --accent-lime: #CCFF00;
+      --accent-lime-glow: rgba(204, 255, 0, 0.28);
+      --accent-lime-dim: rgba(204, 255, 0, 0.12);
+      --text-white: #FFFFFF;
+      --text-muted: #8E95A5;
+      --text-dim: #555D70;
+      --danger: #FF4D5E;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--text-white);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      padding: calc(env(safe-area-inset-top, 0px) + 16px) 16px calc(env(safe-area-inset-bottom, 0px) + 140px) 16px;
+      max-width: 520px;
+      margin: 0 auto;
+      user-select: none;
+      -webkit-user-select: none;
+      min-height: 100vh;
+    }
+
+    /* Top Navigation Header */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      background: var(--accent-lime);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+      font-weight: 900;
+      font-size: 19px;
+      letter-spacing: -1px;
+    }
+
+    .brand-title {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: -0.6px;
+    }
+
+    .brand-title span {
+      color: var(--accent-lime);
+    }
+
+    .reset-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      border-radius: 10px;
+      padding: 7px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      cursor: pointer;
+    }
+
+    .reset-btn:active {
+      color: var(--danger);
+      border-color: var(--danger);
+    }
+
+    /* Day Chips Navigation */
+    .day-strip {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 18px;
+      scrollbar-width: none;
+    }
+
+    .day-strip::-webkit-scrollbar {
+      display: none;
+    }
+
+    .day-chip {
+      flex: 1 0 auto;
+      min-width: 64px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .day-chip .chip-sub {
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      opacity: 0.6;
+    }
+
+    .day-chip.active {
+      background: var(--accent-lime);
+      color: #000;
+      border-color: var(--accent-lime);
+      box-shadow: 0 4px 18px var(--accent-lime-glow);
+    }
+
+    .day-chip.active .chip-sub {
+      opacity: 0.9;
+    }
+
+    /* Focus Overview Card */
+    .overview-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 16px 18px;
+      margin-bottom: 18px;
+    }
+
+    .overview-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .day-tag {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--accent-lime);
+    }
+
+    .stats-badge {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .day-focus {
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      margin-bottom: 12px;
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: var(--bg-input);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--accent-lime);
+      border-radius: 999px;
+      transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 0 10px var(--accent-lime-glow);
+    }
+
+    /* Exercise Card */
+    .exercise-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .exercise-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 14px;
+      gap: 10px;
+    }
+
+    .exercise-title {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .target-tag {
+      background: var(--accent-lime-dim);
+      border: 1px solid rgba(204, 255, 0, 0.25);
+      color: var(--accent-lime);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+
+    /* Set Table Headers & Row */
+    .set-headers {
+      display: grid;
+      grid-template-columns: 32px 1fr 1fr 42px;
+      gap: 8px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+      padding: 0 2px;
+      text-align: center;
+    }
+
+    .set-headers div:nth-child(2),
+    .set-headers div:nth-child(3) {
+      text-align: left;
+    }
+
+    .set-row {
+      display: grid;
+      grid-template-columns: 32px 1fr 1fr 42px;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .set-index {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-align: center;
+    }
+
+    .input-field {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 10px 10px;
+      color: var(--text-white);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      font-weight: 600;
+      outline: none;
+      transition: all 0.15s ease;
+    }
+
+    .input-field:focus {
+      border-color: var(--accent-lime);
+      background: #121620;
+    }
+
+    .check-btn {
+      width: 42px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 900;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .check-btn:active {
+      transform: scale(0.92);
+    }
+
+    .check-btn.completed {
+      background: var(--accent-lime);
+      border-color: var(--accent-lime);
+      color: #000;
+      box-shadow: 0 0 14px var(--accent-lime-glow);
+    }
+
+    /* Rest & Recovery UI */
+    .rest-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      padding: 20px;
+      margin-bottom: 14px;
+    }
+
+    .rest-icon {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .rest-heading {
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .rest-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .step-tracker {
+      background: var(--bg-input);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .step-digits {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--accent-lime);
+    }
+
+    .step-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .step-btn {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-white);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .step-btn:active {
+      border-color: var(--accent-lime);
+      color: var(--accent-lime);
+    }
+
+    /* Floating Auto Rest Timer Bar */
+    .timer-bar {
+      position: fixed;
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+      left: 16px;
+      right: 16px;
+      max-width: 488px;
+      margin: 0 auto;
+      background: rgba(20, 23, 33, 0.94);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-highlight);
+      border-radius: 18px;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7);
+      z-index: 100;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s;
+    }
+
+    .timer-bar.hidden {
+      transform: translateY(120px);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .timer-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .timer-label {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .timer-clock {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--accent-lime);
+    }
+
+    .timer-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .timer-btn {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-white);
+      padding: 8px 10px;
+      border-radius: 9px;
+      font-size: 11px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .timer-btn:active {
+      background: var(--border-highlight);
+    }
+
+    .timer-btn.primary {
+      background: var(--accent-lime);
+      color: #000;
+      border-color: var(--accent-lime);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand-wrap">
+      <div class="brand-logo">R</div>
+      <div class="brand-title">RE<span>SHAPE</span></div>
+    </div>
+    <button class="reset-btn" onclick="resetCurrentDayData()">Reset Day</button>
+  </header>
+
+  <!-- Horizontal Day Strip -->
+  <div class="day-strip" id="day-strip"></div>
+
+  <!-- Focus Header & Stats -->
+  <div class="overview-card">
+    <div class="overview-top">
+      <span class="day-tag" id="day-tag">Day 1</span>
+      <span class="stats-badge" id="stats-badge">0 / 0 Sets (0 kg)</span>
+    </div>
+    <h2 class="day-focus" id="day-focus">Chest + Triceps + Side Delts</h2>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+  </div>
+
+  <!-- Exercises Container -->
+  <main id="exercise-list"></main>
+
+  <!-- Floating 1-Minute Auto Rest Timer -->
+  <div class="timer-bar hidden" id="timer-bar">
+    <div class="timer-info">
+      <span class="timer-label">Rest Timer</span>
+      <span class="timer-clock" id="timer-display">01:00</span>
+    </div>
+    <div class="timer-actions">
+      <button class="timer-btn" onclick="adjustTimer(-15)">-15s</button>
+      <button class="timer-btn" onclick="adjustTimer(30)">+30s</button>
+      <button class="timer-btn" id="timer-toggle-btn" onclick="toggleTimer()">Pause</button>
+      <button class="timer-btn primary" onclick="closeTimer()">Skip</button>
+    </div>
+  </div>
+
+  <script>
+    const routine = [
+      {
+        id: "d1",
+        label: "D1",
+        day: "Day 1",
+        focus: "Chest + Triceps + Side Delts",
+        isRest: false,
+        exercises: [
+          { id: "e1", name: "Flat Bench Press", sets: 3, reps: "6–8" },
+          { id: "e2", name: "Incline Dumbbell Press", sets: 3, reps: "8–12" },
+          { id: "e3", name: "Cable / Machine Fly", sets: 2, reps: "10–15" },
+          { id: "e4", name: "Cable Lateral Raises", sets: 3, reps: "12–15" },
+          { id: "e5", name: "Triceps Pushdown", sets: 3, reps: "10–12" },
+          { id: "e6", name: "Overhead Triceps Extension", sets: 2, reps: "10–12" }
+        ]
+      },
+      {
+        id: "d2",
+        label: "D2",
+        day: "Day 2",
+        focus: "Back + Biceps + Rear Delts",
+        isRest: false,
+        exercises: [
+          { id: "e1", name: "Lat Pulldown / Pull-ups", sets: 3, reps: "8–10" },
+          { id: "e2", name: "Seated Cable Row", sets: 3, reps: "8–12" },
+          { id: "e3", name: "One-Arm Dumbbell Row", sets: 2, reps: "8–12" },
+          { id: "e4", name: "Face Pulls / Rear-Delt Fly", sets: 3, reps: "12–15" },
+          { id: "e5", name: "Incline Dumbbell Curls", sets: 3, reps: "10–12" },
+          { id: "e6", name: "Hammer Curls", sets: 2, reps: "10–12" }
+        ]
+      },
+      {
+        id: "d3",
+        label: "D3",
+        day: "Day 3",
+        focus: "Legs (Quad & Hip Hinge Focus)",
+        isRest: false,
+        exercises: [
+          { id: "e1", name: "Barbell Squat / Hack Squat / Leg Press", sets: 3, reps: "6–10" },
+          { id: "e2", name: "Romanian Deadlift (RDL)", sets: 3, reps: "8–10" },
+          { id: "e3", name: "Leg Extensions", sets: 2, reps: "10–15" },
+          { id: "e4", name: "Lying Leg Curls", sets: 2, reps: "10–15" },
+          { id: "e5", name: "Standing Calf Raises", sets: 3, reps: "12–15" },
+          { id: "e6", name: "Hanging Knee Raises", sets: 3, reps: "12–15" }
+        ]
+      },
+      {
+        id: "d4",
+        label: "D4",
+        day: "Day 4",
+        focus: "Upper Body (Balance & Hypertrophy)",
+        isRest: false,
+        exercises: [
+          { id: "e1", name: "Incline Barbell or Dumbbell Bench", sets: 3, reps: "8–10" },
+          { id: "e2", name: "Chest-Supported Row", sets: 3, reps: "8–12" },
+          { id: "e3", name: "Lat Pulldown (Neutral Grip)", sets: 3, reps: "8–12" },
+          { id: "e4", name: "Seated Dumbbell Overhead Press", sets: 2, reps: "8–12" },
+          { id: "e5", name: "Dumbbell Lateral Raises", sets: 3, reps: "12–15" },
+          { id: "e6", name: "Preacher / Cable Curl", sets: 2, reps: "10–12" },
+          { id: "e7", name: "Cable Triceps Pushdown", sets: 2, reps: "10–12" }
+        ]
+      },
+      {
+        id: "d5",
+        label: "D5",
+        day: "Day 5",
+        focus: "Lower Body (Quad / Glute Focus) + Abs",
+        isRest: false,
+        exercises: [
+          { id: "e1", name: "Leg Press", sets: 3, reps: "8–12" },
+          { id: "e2", name: "Bulgarian Split Squats", sets: 2, reps: "8–10 / leg" },
+          { id: "e3", name: "Seated Leg Curls", sets: 3, reps: "10–12" },
+          { id: "e4", name: "Leg Extensions", sets: 2, reps: "12–15" },
+          { id: "e5", name: "Calf Raises", sets: 3, reps: "12–15" },
+          { id: "e6", name: "Cable Crunches", sets: 3, reps: "10–15" }
+        ]
+      },
+      {
+        id: "d67",
+        label: "Rest",
+        day: "Days 6 & 7",
+        focus: "Rest & Active Recovery",
+        isRest: true,
+        desc: "8,000–10,000 steps, light mobility work, and complete central nervous system recovery."
+      }
+    ];
+
+    let currentDayIdx = 0;
+    try {
+      const storedIdx = parseInt(localStorage.getItem("active_day_index") || "0", 10);
+      if (!isNaN(storedIdx) && storedIdx >= 0 && storedIdx < routine.length) {
+        currentDayIdx = storedIdx;
+      }
+    } catch (e) {}
+
+    /* Native Web Audio API Beep (100% Offline, no external files) */
+    function playBeep() {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1320, ctx.currentTime + 0.15);
+
+        gain.gain.setValueAtTime(0.3, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start();
+        osc.stop(ctx.currentTime + 0.4);
+      } catch (err) {}
+    }
+
+    /* UI Rendering */
+    function renderDays() {
+      const strip = document.getElementById("day-strip");
+      strip.innerHTML = "";
+
+      routine.forEach((r, idx) => {
+        const chip = document.createElement("button");
+        chip.className = `day-chip ${idx === currentDayIdx ? "active" : ""}`;
+        chip.innerHTML = `
+          <span>${r.label}</span>
+          <span class="chip-sub">${r.isRest ? "Off" : "Day " + (idx + 1)}</span>
+        `;
+        chip.onclick = () => {
+          currentDayIdx = idx;
+          try { localStorage.setItem("active_day_index", idx); } catch (e) {}
+          renderDays();
+          renderContent();
+        };
+        strip.appendChild(chip);
+      });
+    }
+
+    function renderContent() {
+      const current = routine[currentDayIdx];
+      document.getElementById("day-tag").innerText = current.day;
+      document.getElementById("day-focus").innerText = current.focus;
+
+      const main = document.getElementById("exercise-list");
+      main.innerHTML = "";
+
+      if (current.isRest) {
+        renderRestView(main, current);
+        updateStats();
+        return;
+      }
+
+      current.exercises.forEach((ex) => {
+        const card = document.createElement("div");
+        card.className = "exercise-card";
+
+        let setsMarkup = "";
+        for (let s = 1; s <= ex.sets; s++) {
+          const key = `set_${current.id}_${ex.id}_${s}`;
+          let data = {};
+          try {
+            data = JSON.parse(localStorage.getItem(key) || "{}");
+          } catch (e) {}
+
+          const isCompleted = data.completed === true;
+
+          setsMarkup += `
+            <div class="set-row">
+              <div class="set-index">${s}</div>
+              <input type="number" step="0.5" inputmode="decimal" class="input-field" 
+                     placeholder="kg" value="${data.weight || ''}" 
+                     oninput="updateSetData('${key}', 'weight', this.value)">
+              <input type="number" inputmode="numeric" class="input-field" 
+                     placeholder="reps" value="${data.reps || ''}" 
+                     oninput="updateSetData('${key}', 'reps', this.value)">
+              <button class="check-btn ${isCompleted ? 'completed' : ''}" 
+                      onclick="toggleSetComplete('${key}', this)">✓</button>
+            </div>
+          `;
+        }
+
+        card.innerHTML = `
+          <div class="exercise-header">
+            <h3 class="exercise-title">${ex.name}</h3>
+            <span class="target-tag">${ex.sets} × ${ex.reps}</span>
+          </div>
+          <div class="set-headers">
+            <div>Set</div>
+            <div>Kg</div>
+            <div>Reps</div>
+            <div>Done</div>
+          </div>
+          ${setsMarkup}
+        `;
+        main.appendChild(card);
+      });
+
+      updateStats();
+    }
+
+    function renderRestView(container, item) {
+      let steps = 8500;
+      try {
+        steps = parseInt(localStorage.getItem("reshape_steps") || "8500", 10);
+      } catch (e) {}
+
+      container.innerHTML = `
+        <div class="rest-card">
+          <div class="re
